@@ -1,0 +1,19 @@
+{
+  "name": "bambolo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "bambolo"
+  },
+  "author": "ko",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "puppeteer": "^2.0.0"
+  }
+}
