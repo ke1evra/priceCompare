@@ -20,8 +20,7 @@ let batik_bambolo = batik.reduce((acc,val)=>{
     return acc;
 },[]);
 
-
-async function openPage() {
+async function openPage(){
     try {
         const browser = await puppeteer.launch({
             headless: true,
@@ -30,10 +29,9 @@ async function openPage() {
         console.log(`Браузер открыт`.cyan);
         return await browser.newPage();
     }catch (e) {
-        console.log('Ошибка в функции openPage');
+        console.log('Ошибка в функции openPage'.red);
         console.log(e)
     }
-
 }
 
 async function goToPage(page,url){
@@ -44,10 +42,9 @@ async function goToPage(page,url){
         });
         return page;
     }catch (e) {
-        console.log('Ошибка в функции goToPage');
+        console.log('Ошибка в функции goToPage'.red);
         console.log(e)
     }
-
 }
 
 async function scrape(page){
@@ -56,13 +53,14 @@ async function scrape(page){
             let data = {};
             let title = document.querySelector('#breadcrumbs > li.last > a > span');
             let cost = document.querySelector('#rpart > div.priceblock > div.fl > div.price > span.d');
+
             title ? data.title = title.innerText : null;
-            cost ? data.cost = cost.innerText.split(' ').join('')*1 : null ;
+            cost ? data.cost = cost.innerText.split(' ').join('')*1 : null;
 
             return data;
         })
     }catch (e) {
-        console.log('Ошибка в функции scrape');
+        console.log('Ошибка в функции scrape'.red);
         console.log(e)
     }
 
@@ -70,7 +68,6 @@ async function scrape(page){
 
 async function saveResult(data){
     try {
-
         wfSync(data,`./output/${+new Date()}.json`);
         console.log(`Файл сохранен`.cyan);
 
@@ -78,30 +75,37 @@ async function saveResult(data){
             .writeRecords(data)
             .then(()=> console.log('The CSV file was written successfully'));
     }catch (e) {
-        console.log('Ошибка в функции saveResult');
+        console.log('Ошибка в функции saveResult'.red);
         console.log(e)
     }
-
 }
 
 async function main(){
-    let newPage = await openPage();
-    let data = [];
+    try {
+        let newPage = await openPage();
+        let data = [];
 
-    for(let item of batik_bambolo){
-        let loadedPage = await goToPage(newPage,item.url);
-        data.push(await scrape(loadedPage));
-        data[data.length-1].art_number = item.art_number;
-        console.log(`Получены данные: ${JSON.stringify(data)}`.green)
+        for(let item of batik_bambolo){
+            let loadedPage = await goToPage(newPage,item.url);
+            let parsedData = await scrape(loadedPage);
+            data.push(parsedData);
+            data[data.length-1].art_number = item.art_number;
+            console.log(`Получены данные: ${JSON.stringify(parsedData)}`.green);
+        }
+        return data;
+    }catch (e) {
+        console.log('Ошибка в функции main'.red);
+        console.log(e)
     }
-    return data;
 }
+
 (async ()=>{
     try{
         let data = await main();
         await saveResult(data)
     }
     catch (e) {
+        console.log('Ошибка'.red);
         console.log(e)
     }
 })();
