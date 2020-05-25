@@ -81,9 +81,10 @@ async function saveResult(data){
 }
 
 async function main(){
+    let data = [];
     try {
         let newPage = await openPage();
-        let data = [];
+
 
         for(let item of batik_bambolo){
             let loadedPage = await goToPage(newPage,item.url);
@@ -95,7 +96,8 @@ async function main(){
         return data;
     }catch (e) {
         console.log('Ошибка в функции main'.red);
-        console.log(e)
+        console.log(e);
+        return data;
     }
 }
 
