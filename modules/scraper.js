@@ -3,18 +3,6 @@ const colors = require('colors');
 
 const { wfSync } = require('./common');
 
-const batik = require('../lib/batik');
-
-let batik_bambolo = batik.reduce((acc,val)=>{
-    if(val.bambolo !== null){
-        acc.push({
-            url: val.bambolo,
-            art_number: val.art_number
-        });
-    }
-    return acc;
-},[]);
-
 class Parser {
     constructor(inputFile) {
         this.inputFile = inputFile;
@@ -60,7 +48,25 @@ class Parser {
                 return data;
             })
         }catch (e) {
-            console.log('Ошибка в функции scrape'.red);
+            console.log('Ошибка в функции scrapeBamboloPage'.red);
+            console.log(e)
+        }
+    }
+
+    async scrapeMyCarnavalPage(page){
+        try {
+            return await page.evaluate(()=>{
+                let data = {};
+                let title = document.querySelector('h1');
+                let cost = document.querySelector('#main_buy_form > div.buy__prices > div > div.buy__price > span');
+
+                title ? data.title = title.innerText : null;
+                cost ? data.cost = cost.innerText.split(' ').join('')*1 : null;
+
+                return data;
+            })
+        }catch (e) {
+            console.log('Ошибка в функции scrapeBamboloPage'.red);
             console.log(e)
         }
     }
@@ -75,20 +81,34 @@ class Parser {
         }
     }
 
-    async parseBamboloData(){
+    async checkUnfinishedJob(){
+
+    }
+
+    async parseData(scrapeFunc){
         let data = [];
         try {
             let newPage = await this.openPage();
-
-
-            for(let item of batik_bambolo){
+            for(let item of this.inputFile){
                 let loadedPage = await this.goToPage(newPage,item.url);
-                let parsedData = await this.scrapeBamboloPage(loadedPage);
+                let parsedData = await scrapeFunc(loadedPage);
                 data.push(parsedData);
                 data[data.length-1].art_number = item.art_number;
                 console.log(`Получены данные: ${JSON.stringify(parsedData)}`.green);
             }
             await this.saveResult(data);
+            return data;
+        }catch (e) {
+            console.log('Ошибка в функции parseData'.red);
+            console.log(e);
+            return data;
+        }
+    }
+
+    async parseBamboloData(){
+        let data = [];
+        try {
+            data = this.parseData(this.scrapeBamboloPage);
             return data;
         }catch (e) {
             console.log('Ошибка в функции parseBamboloData'.red);
@@ -97,8 +117,17 @@ class Parser {
         }
     }
 
-
-
+    async parseMyCarnavalData(){
+        let data = [];
+        try {
+            data = this.parseData(this.scrapeMyCarnavalPage);
+            return data;
+        }catch (e) {
+            console.log('Ошибка в функции parseBamboloData'.red);
+            console.log(e);
+            return data;
+        }
+    }
 }
 
 module.exports = Parser;

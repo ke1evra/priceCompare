@@ -1,6 +1,20 @@
 const fs = require('fs');
 var exports = module.exports = {};
 
+
+exports.checkIfFileExists = (path) => {
+    fs.stat(path, function(err, stat) {
+        if(err == null) {
+            console.log('File exists');
+        } else if(err.code === 'ENOENT') {
+            // file does not exist
+            fs.writeFile('log.txt', 'Some log\n');
+        } else {
+            console.log('Some other error: ', err.code);
+        }
+    });
+};
+
 exports.replaceSpetialSHars = (text) => {
     String.prototype.replaceAll = function(search, replace) {
         return this.split(search).join(replace);
@@ -40,16 +54,16 @@ exports.genWordEnd = (n, w, e1, e2, e3, o) => {
     }
 
     return (r);
-}
+};
 
 exports.NmbrFt = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
+};
 
 exports.rfSync = (path) => {
     r = JSON.parse(fs.readFileSync(path, "utf8"));
     return r;
-}
+};
 
 exports.wfSync = (data, path) => {
     try {
@@ -61,7 +75,7 @@ exports.wfSync = (data, path) => {
 
     }
 
-}
+};
 
 exports.translite = (inputstr) => {
     var space = '-';
@@ -85,4 +99,4 @@ exports.translite = (inputstr) => {
         }
     }
     return result;
-}
+};
