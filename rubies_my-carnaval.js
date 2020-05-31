@@ -12,6 +12,6 @@ let rubies_mycarnaval = rubies.reduce((acc,val)=>{
 },[]);
 
 const mycarnavalScraper = new scraper(rubies_mycarnaval);
-console.log('Погнали'.cyan)
+console.log('Погнали'.cyan);
 let data = mycarnavalScraper.parseMyCarnavalData();
 
